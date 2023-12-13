@@ -1,19 +1,13 @@
 const axios = require('axios')
-const bot = require('../utils/botHandler')
-const {
-  startOptions
-} = require('../utils/options')
 const User = require('../models/user.model')
 class VacancyService {
-  async getVacancies(variableParams, page) {
+  async getVacancies(variableParams) {
     const constParams = {
       per_page: 1,
-      page: page || 0
     }
     const params = {
       ...constParams,
       ...variableParams,
-      // text: query
     }
     console.log(params)
     const vac = await axios.get(`https://api.hh.ru/vacancies`, {
@@ -22,7 +16,6 @@ class VacancyService {
         'User-Agent': 'JobHunterBot'
       }
     })
-    // console.log(vac)
     return vac.data
 
   }
@@ -40,7 +33,6 @@ class VacancyService {
   }
   async getVacancy(vacancyId) {
     const vac = await axios.get(`https://api.hh.ru/vacancies/${vacancyId}`, {
-      // params,
       headers: {
         'User-Agent': 'JobHunterBot'
       }
@@ -55,9 +47,6 @@ class VacancyService {
     })
     console.log(user)
     return await axios.get(`https://api.hh.ru/resumes/mine`, {
-      // params: {
-
-      // },
       headers: {
         'HH-User-Agent': 'JobHunterBot',
         'Authorization': `Bearer ${user.dataValues.authTokenHH}`
@@ -74,7 +63,6 @@ class VacancyService {
         tgId: +userId
       }
     })
-    // console.log(user)
   }
   async setCoveringLetter(userId, text) {
     console.log(userId, text)
@@ -85,17 +73,15 @@ class VacancyService {
         tgId: +userId
       }
     })
-    // console.log(user)
   }
   async entertainVacancy(userId, vacancyId) {
-    console.log(userId, vacancyId)
     const user = await User.findOne({
       where: {
         tgId: +userId
       }
     })
-    console.log(user)
-    console.log(user.dataValues.resumeId, user.dataValues.coveringLetter)
+    if (user == null || user.dataValues.authTokenHH == null) return 'Вы не авторизованы и не можете отправить отклик. Для авторизации введите /auth'
+
     const result = await axios.post(`https://api.hh.ru/negotiations`, {}, {
       params: {
         vacancy_id: vacancyId,
@@ -103,14 +89,12 @@ class VacancyService {
         message: user.dataValues.coveringLetter
       },
       headers: {
-        // 'HH-User-Agent': 'JobHunterBot',
         'Authorization': `Bearer ${user.dataValues.authTokenHH}`,
         'Content-Type': 'multipart/form-data'
       }
     })
     console.log(result.data)
     return 'Отклик отправлен'
-    // console.log(user)
   }
 }
 module.exports = new VacancyService()

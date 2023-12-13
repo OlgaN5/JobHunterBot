@@ -1,6 +1,6 @@
 const axios = require('axios')
 const User = require('../models/user.model')
-const botHandler = require('../utils/botHandler')
+const botHandler = require('../telegram.lib/botHandler')
 class AuthService {
     getToken = async (code, userId) => {
         console.log(code)

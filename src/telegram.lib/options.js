@@ -1,35 +1,32 @@
-       //options
        const startOptions = {
-        reply_markup: JSON.stringify({
-            keyboard: [
-                [{
-                    text: 'Начать поиск',
-                    resize_keyboard: true,
-                    //    callback_data: 'firstVacancy'
-                },{
-                    text: 'Установить резюме для отклика',
-                    resize_keyboard: true,
-                    //    callback_data: 'firstVacancy'
-                },{
-                    text: 'Написать письмо для отклика',
-                    resize_keyboard: true,
-                    //    callback_data: 'firstVacancy'
-                }],
-            ],
-            resize_keyboard: true,
-        })
-    }
+           reply_markup: JSON.stringify({
+               keyboard: [
+                   [{
+                       text: 'Продолжить поиск',
+                       resize_keyboard: true,
+                   }, {
+                       text: 'Начать поиск',
+                       resize_keyboard: true,
+                   }, {
+                       text: 'Установить резюме для отклика',
+                       resize_keyboard: true,
+                   }, {
+                       text: 'Написать письмо для отклика',
+                       resize_keyboard: true,
+                   }],
+               ],
+               resize_keyboard: true,
+           })
+       }
        const startSearchOptions = {
            reply_markup: JSON.stringify({
                keyboard: [
                    [{
                        text: 'Получить первую вакансию',
                        resize_keyboard: true,
-                       //    callback_data: 'firstVacancy'
                    }, {
                        text: 'Добавить фильтр',
                        resize_keyboard: true,
-                       //    callback_data: 'addFilters'
                    }],
                ],
                resize_keyboard: true,
@@ -41,16 +38,14 @@
                    [{
                            text: 'Город',
                            resize_keyboard: true,
-                           //    callback_data: 'filterAreas'
                        },
+                       //    {
+                       //        text: 'Заработная плата',
+                       //        resize_keyboard: true,
+                       //    }, 
                        {
-                           text: 'Заработная плата',
-                           resize_keyboard: true,
-                           //    callback_data: 'filterSalary'
-                       }, {
                            text: 'Опыт',
                            resize_keyboard: true,
-                           //    callback_data: 'filterExperience'
                        }
                    ],
                ],
@@ -60,24 +55,29 @@
        const mainOptions = {
            reply_markup: JSON.stringify({
                keyboard: [
-                //    [{
-                //        text: 'Сбросить фильтры',
-                //        resize_keyboard: true,
-                //        //    callback_data: 'resetFilters'
-                //    }, {
-                //        text: 'Добавить фильтр',
-                //        resize_keyboard: true,
-                //        //    callback_data: 'addFilters'
-                //    }],
-                //    [{
-                //        text: 'Новый запрос',
-                //        resize_keyboard: true,
-                //        //    callback_data: 'newQuery'
-                //    }],
+                   //    [{
+                   //        text: 'Сбросить фильтры',
+                   //        resize_keyboard: true,
+                   //        //    callback_data: 'resetFilters'
+                   //    }, {
+                   //        text: 'Добавить фильтр',
+                   //        resize_keyboard: true,
+                   //        //    callback_data: 'addFilters'
+                   //    }],
+                   //    [{
+                   //        text: 'Новый запрос',
+                   //        resize_keyboard: true,
+                   //        //    callback_data: 'newQuery'
+                   //    }],
                    [{
                            text: 'Первая вакансия',
                            resize_keyboard: true,
                            //    callback_data: 'firstVacancy',
+                       },
+                       {
+                           text: 'Назад',
+                           resize_keyboard: true,
+                           //    callback_data: 'nextVacancy',
                        },
                        {
                            text: 'Вперед',
@@ -85,15 +85,15 @@
                            //    callback_data: 'nextVacancy',
                        },
                        {
-                        text: 'Откликнуться',
-                        resize_keyboard: true,
-                        //    callback_data: 'nextVacancy',
-                    },
-                    //    {
-                    //        text: 'Предыдущая вакансия',
-                    //        resize_keyboard: true,
-                    //        //    callback_data: 'prevVacancy',
-                    //    }
+                           text: 'Откликнуться',
+                           resize_keyboard: true,
+                           //    callback_data: 'nextVacancy',
+                       },
+                       //    {
+                       //        text: 'Предыдущая вакансия',
+                       //        resize_keyboard: true,
+                       //        //    callback_data: 'prevVacancy',
+                       //    }
                    ]
 
                ],

@@ -1,5 +1,5 @@
 const authService = require('../services/authService')
-const botHandler = require('../utils/botHandler')
+const botHandler = require('../telegram.lib/botHandler')
 class BotController {
     async auth(req, res) {
         try {
