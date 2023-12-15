@@ -31,5 +31,6 @@ module.exports = db.define('user', {
         type: Sequelize.TEXT,
         allowNull: true,
         unique: false
-    }
+    },
+   
 })

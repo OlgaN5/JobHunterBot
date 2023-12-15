@@ -4,10 +4,10 @@ const showdown = require('showdown'),
 const TelegramBot = require('node-telegram-bot-api')
 const {
     startOptions,
-    currencyOptions,
     startSearchOptions,
     mainOptions,
-    filterOptions
+    filterOptions,
+    experienceOptions
 } = require('./options')
 
 class BotHandler {
@@ -19,6 +19,7 @@ class BotHandler {
     queryParams = {}
     chatIdGlobal
     vacancyId
+    filterTumbler = false
     constructor() {
         this.bot = new TelegramBot(process.env.TG_TOKEN, {
             webHook: {
@@ -31,31 +32,36 @@ class BotHandler {
     }
     async getDisplay() {
         const vacancies = await vacancyService.getVacancies(this.queryParams)
-        const vacancy = await vacancyService.getVacancy(vacancies.items[0].id)
-        const name = this.escape(vacancy.name)
-        const url = this.escape(vacancy.alternate_url)
-        // const desc = this.escape(vacancy.description)
-        const keySkills = this.escape(vacancy.key_skills.map((item) => item.name).join(', '))
-        // console.log(vacancy)
-        // console.log(vacancy.description)
-        // console.log(desc)
-        // console.log(converter.makeMarkdown(vacancy.description))
-        this.vacancyId = vacancy.id
-        const result = {
-            name: name,
-            salary: vacancy.salary || 'не указана',
-            url: url,
-            experience: vacancy.experience.name,
-            key_skills: keySkills.length !== 0 ? keySkills : 'Не указаны',
-            // description: desc|| 'не указана',
-        }
-        const display = `
+        console.log(vacancies)
+        if (vacancies) {
+            const vacancy = await vacancyService.getVacancy(vacancies.items[0].id)
+            const name = this.escape(vacancy.name)
+            const url = this.escape(vacancy.alternate_url)
+            // const desc = this.escape(vacancy.description)
+            const keySkills = this.escape(vacancy.key_skills.map((item) => item.name).join(', '))
+            // console.log(vacancy)
+            // console.log(vacancy.description)
+            // console.log(desc)
+            // console.log(converter.makeMarkdown(vacancy.description))
+            this.vacancyId = vacancy.id
+            const result = {
+                name: name,
+                salary: vacancy.salary || 'не указана',
+                url: url,
+                experience: vacancy.experience.name,
+                key_skills: keySkills.length !== 0 ? keySkills : 'Не указаны',
+                // description: desc|| 'не указана',
+            }
+            const display = `
             *Краткая информация*:
         
 Название вакансии: ${result.name}\nЗаработная плата: от ${result.salary?.from||'не указана'} до ${result.salary?.to||'не указана'} ${result.salary?.currency||''} \nНавыки: ${result.key_skills}
 Experience: ${result.experience}\nПодробнее по ссылке: ${result.url} 
             `
-        return display
+            return display
+        } else {
+            return null
+        }
     }
 
     sendMessage = async (text) => {
@@ -68,6 +74,13 @@ Experience: ${result.experience}\nПодробнее по ссылке: ${result
         this.chatIdGlobal = chatId
         const messageText = msg.text
         console.log(messageText)
+
+        const experience = {
+            'Без опыта': 'noExperience',
+            'От 1 до 3 лет': 'between1And3',
+            'От 3 до 6 лет': 'between3And6',
+            'Более 6 лет>': 'moreThan6',
+        }
         const methods = {
             '/start': async () => {
                 await this.bot.sendMessage(chatId, `Введите /auth для авторизации или /get для поиска вакансий без авторизации. Без авториации вы не сможете откликаться на вакансии`)
@@ -115,13 +128,18 @@ Experience: ${result.experience}\nПодробнее по ссылке: ${result
                 const resuls = await vacancyService.entertainVacancy(msg.from.id, this.vacancyId)
                 await this.bot.sendMessage(chatId, resuls, mainOptions)
             },
-            'Получить первую вакансию': async () => {
-                this.queryParams.page = 0
-                const display = await this.getDisplay()
-                // this.next++
-                // this.prev++
-                await this.bot.sendMessage(chatId, display, mainOptions)
-            },
+            // 'Получить первую вакансию': async () => {
+            //     this.queryParams.page = 0
+            //     const display = await this.getDisplay()
+            //     // this.next++
+            //     // this.prev++
+            //     if (display) {
+            //         await this.bot.sendMessage(chatId, display, mainOptions)
+            //     } else {
+            //         this.queryParams = {}
+            //         await this.bot.sendMessage(chatId, 'Вакансии не найдены. Введите /get и попробуйте снова')
+            //     }
+            // },
             'Вперед': async () => {
                 this.queryParams.page++
                 const display = await this.getDisplay()
@@ -146,15 +164,35 @@ Experience: ${result.experience}\nПодробнее по ссылке: ${result
             'Первая вакансия': async () => {
                 this.queryParams.page = 0
                 const display = await this.getDisplay()
-                await this.bot.sendMessage(chatId, display, mainOptions)
+                // this.next++
+                // this.prev++
+                if (display) {
+                    await this.bot.sendMessage(chatId, display, mainOptions)
+                } else {
+                    this.queryParams = {}
+                    await this.bot.sendMessage(chatId, 'Вакансии не найдены. Введите /get и попробуйте снова')
+                }
             },
-            // 'Добавить фильтр': async () => {
-            //     this.operation = 'addFilter'
-            //     await this.bot.sendMessage(chatId, 'Выберите фильтр, который нужно добавить', filterOptions)
-            // },
-            // 'Город': async () => {
-            //     this.operation = 'addFilterArea'
-            // }
+            'Добавить фильтр': async () => {
+                this.filterTumbler = true
+                await this.bot.sendMessage(chatId, 'Выберите фильтр, который нужно добавить', filterOptions)
+            },
+            'Город': async () => {
+                if (this.filterTumbler) {
+                    this.filterTumbler = false
+                    this.operation = 'addFilterArea'
+                    await this.bot.sendMessage(chatId, 'Введите город')
+                }
+
+            },
+            'Опыт': async () => {
+                if (this.filterTumbler) {
+                    this.filterTumbler = false
+                    this.operation = 'addFilterExperience'
+                    await this.bot.sendMessage(chatId, 'Выберите опыт', experienceOptions)
+                }
+
+            }
         }
         const methodsOperation = {
             'setCoveringLetter': async () => {
@@ -176,9 +214,29 @@ Experience: ${result.experience}\nПодробнее по ссылке: ${result
                 console.log(this.queryParams.text = messageText)
                 this.operation = null
                 await this.bot.sendMessage(chatId, 'Выберите действие', startSearchOptions)
+            },
+            'addFilterExperience': async () => {
+                if (experience[messageText]) {
+                    this.queryParams.experience = experience[messageText]
+                    this.operation = null
+                    await this.bot.sendMessage(chatId, 'Выберите действие', startSearchOptions)
+                } else {
+                    await this.bot.sendMessage(chatId, 'Невалидный опыт. Фильтр не установлен. Выберите действие', startSearchOptions)
+                }
+            },
+            'addFilterArea': async () => {
+                const areasId = await vacancyService.getAreaId(messageText)
+                if (areasId) {
+                    this.queryParams.area = areasId
+                    this.operation = null
+                    await this.bot.sendMessage(chatId, 'Выберите действие', startSearchOptions)
+                } else {
+                    await this.bot.sendMessage(chatId, 'Нет такой страны/города. Фильтр не установлен. Выберите действие', startSearchOptions)
+                }
             }
-
         }
+
+
 
         if (this.operation === null && methods[messageText]) {
             console.log('111')

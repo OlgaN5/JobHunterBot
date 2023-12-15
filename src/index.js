@@ -7,12 +7,22 @@ const port = process.env.PORT || 4000
 const router = require('./routes/index.router')
 const db = require('./config/database')
 app.use(express.json())
-
+const {
+    User,
+    Filters
+} = require('./models/assotiations')
 async function start() {
     await db.authenticate()
-    await db.sync({
-        force: true
-    })
+    // await db.sync({
+    //     force: true
+    // })
+   
+    await User.sync({
+            force: true
+        })
+        await Filters.sync({
+            force: true
+        })
 
     app.use(cors({
         origin: '*',

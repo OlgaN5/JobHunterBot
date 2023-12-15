@@ -16,20 +16,22 @@ class VacancyService {
         'User-Agent': 'JobHunterBot'
       }
     })
-    return vac.data
-
+    console.log(vac.data)
+    return vac.data.items.length === 0 ? null : vac.data
   }
   async getAreaId(query) {
     const params = {
       text: query
     }
-    // console.log(params)
-    return (await axios.get('https://api.hh.ru/suggests/areas', {
+    const area = (await axios.get('https://api.hh.ru/suggests/areas', {
       params,
       headers: {
         'User-Agent': 'JobHunterBot'
       }
-    })).data.items[0].id
+    }))
+    console.log(area.data.items[0].id)
+    if (area.data.items.length !== 0) return area.data.items[0].id
+    else null
   }
   async getVacancy(vacancyId) {
     const vac = await axios.get(`https://api.hh.ru/vacancies/${vacancyId}`, {

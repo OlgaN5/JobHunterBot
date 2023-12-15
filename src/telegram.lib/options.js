@@ -22,7 +22,7 @@
            reply_markup: JSON.stringify({
                keyboard: [
                    [{
-                       text: 'Получить первую вакансию',
+                       text: 'Первая вакансия',
                        resize_keyboard: true,
                    }, {
                        text: 'Добавить фильтр',
@@ -153,5 +153,6 @@
            mainOptions,
            filterOptions,
            currencyOptions,
-           startSearchOptions
+           startSearchOptions,
+           experienceOptions
        }
