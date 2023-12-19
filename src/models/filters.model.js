@@ -9,7 +9,7 @@ module.exports = db.define('filter', {
     },
     area: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true
     },
     experience: {

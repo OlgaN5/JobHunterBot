@@ -1,5 +1,9 @@
 const axios = require('axios')
-const User = require('../models/user.model')
+const _ = require('lodash')
+const {
+  User,
+  Filters
+} = require('../models/assotiations')
 class VacancyService {
   async getVacancies(variableParams) {
     const constParams = {
@@ -83,20 +87,54 @@ class VacancyService {
       }
     })
     if (user == null || user.dataValues.authTokenHH == null) return 'Вы не авторизованы и не можете отправить отклик. Для авторизации введите /auth'
-
-    const result = await axios.post(`https://api.hh.ru/negotiations`, {}, {
-      params: {
-        vacancy_id: vacancyId,
-        resume_id: user.dataValues.resumeId,
-        message: user.dataValues.coveringLetter
-      },
-      headers: {
-        'Authorization': `Bearer ${user.dataValues.authTokenHH}`,
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    if (user.dataValues.resumeId === null ) return 'Не установлено резюме'
+    if (user.dataValues.coveringLetter === null ) return 'Не установлено сопроводительное письмо'
+    console.log(user.dataValues.coveringLetter)
+      const result = await axios.post(`https://api.hh.ru/negotiations`, {}, {
+        params: {
+          vacancy_id: vacancyId,
+          resume_id: user.dataValues.resumeId,
+          message: user.dataValues.coveringLetter
+        },
+        headers: {
+          'Authorization': `Bearer ${user.dataValues.authTokenHH}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      })
     console.log(result.data)
     return 'Отклик отправлен'
+  }
+  async setFilters(userId, filters) {
+    filters = _.omit(filters, ['text'])
+    console.log(filters)
+
+    const user = await User.findOne({
+      where: {
+        tgId: +userId
+      }
+    })
+    const filter = {
+      ...filters,
+      userId: user.id
+    }
+    if (user == null || user.dataValues.authTokenHH == null) return null
+    console.log(filter)
+    return await Filters.create(filter)
+
+
+  }
+  async deleteFilters(userId) {
+    const user = await User.findOne({
+      where: {
+        tgId: +userId
+      }
+    })
+    return await Filters.destroy({
+      where: {
+        userId: user.id
+      }
+    })
+
   }
 }
 module.exports = new VacancyService()

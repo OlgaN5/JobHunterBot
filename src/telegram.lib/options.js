@@ -27,7 +27,10 @@
                    }, {
                        text: 'Добавить фильтр',
                        resize_keyboard: true,
-                   }],
+                   }, {
+                    text: 'Сохранить текущий фильтр',
+                    resize_keyboard: true,
+                }],
                ],
                resize_keyboard: true,
            })
@@ -39,10 +42,7 @@
                            text: 'Город',
                            resize_keyboard: true,
                        },
-                       //    {
-                       //        text: 'Заработная плата',
-                       //        resize_keyboard: true,
-                       //    }, 
+ 
                        {
                            text: 'Опыт',
                            resize_keyboard: true,
@@ -85,7 +85,7 @@
                            //    callback_data: 'nextVacancy',
                        },
                        {
-                           text: 'Откликнуться',
+                           text: 'К стартовому меню',
                            resize_keyboard: true,
                            //    callback_data: 'nextVacancy',
                        },
@@ -94,6 +94,12 @@
                        //        resize_keyboard: true,
                        //        //    callback_data: 'prevVacancy',
                        //    }
+                   ],[
+                    {
+                        text: 'Откликнуться',
+                        resize_keyboard: true,
+                        //    callback_data: 'nextVacancy',
+                    },
                    ]
 
                ],

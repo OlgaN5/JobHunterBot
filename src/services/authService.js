@@ -16,12 +16,32 @@ class AuthService {
                 'User-Agent': 'JobHunterBot'
             }
         })
-        const user = {
-            tgId: userId,
-            authTokenHH: token.data.access_token,
-            refreshTokenHH: token.data.refresh_token
+        console.log(token)
+        const foundUser = await User.findOne({
+            where: {
+                tgId: userId
+            }
+        })
+        console.log(foundUser)
+        if (foundUser) {
+            await User.update({
+                authTokenHH: token.data.access_token,
+                refreshTokenHH: token.data.refresh_token
+            }, {
+                where: {
+                    tgId: userId
+                }
+            })
+        } else {
+            console.log('7777777777777')
+            const user = {
+                tgId: userId,
+                authTokenHH: token.data.access_token,
+                refreshTokenHH: token.data.refresh_token
+            }
+
+            await User.create(user)
         }
-        await User.create(user)
         let timerId = setTimeout(() => this.refreshToken(token.data.refresh_token, userId), token.data.expires_in * 1000)
         // clearTimeout(timerId)
         console.log(token)

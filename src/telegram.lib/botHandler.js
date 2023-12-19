@@ -20,6 +20,7 @@ class BotHandler {
     chatIdGlobal
     vacancyId
     filterTumbler = false
+    filterOptions = {}
     constructor() {
         this.bot = new TelegramBot(process.env.TG_TOKEN, {
             webHook: {
@@ -120,6 +121,10 @@ Experience: ${result.experience}\nПодробнее по ссылке: ${result
                 await this.bot.sendMessage(chatId, 'Введите номер резюме')
                 console.log(resumes.data.items)
             },
+            'Установить фильтры по умолчанию для отклика': async () => {
+                this.filterTumbler = true
+                await this.bot.sendMessage(chatId, 'Выберите фильтр, который нужно добавить', filterOptions)
+            },
             'Написать письмо для отклика': async () => {
                 this.operation = 'setCoveringLetter'
                 await this.bot.sendMessage(chatId, 'Введите письмо')
@@ -128,18 +133,9 @@ Experience: ${result.experience}\nПодробнее по ссылке: ${result
                 const resuls = await vacancyService.entertainVacancy(msg.from.id, this.vacancyId)
                 await this.bot.sendMessage(chatId, resuls, mainOptions)
             },
-            // 'Получить первую вакансию': async () => {
-            //     this.queryParams.page = 0
-            //     const display = await this.getDisplay()
-            //     // this.next++
-            //     // this.prev++
-            //     if (display) {
-            //         await this.bot.sendMessage(chatId, display, mainOptions)
-            //     } else {
-            //         this.queryParams = {}
-            //         await this.bot.sendMessage(chatId, 'Вакансии не найдены. Введите /get и попробуйте снова')
-            //     }
-            // },
+            'К стартовому меню': async () => {
+                await this.bot.sendMessage(this.chatIdGlobal, 'Выберите действие', startOptions)
+            },
             'Вперед': async () => {
                 this.queryParams.page++
                 const display = await this.getDisplay()
@@ -164,8 +160,6 @@ Experience: ${result.experience}\nПодробнее по ссылке: ${result
             'Первая вакансия': async () => {
                 this.queryParams.page = 0
                 const display = await this.getDisplay()
-                // this.next++
-                // this.prev++
                 if (display) {
                     await this.bot.sendMessage(chatId, display, mainOptions)
                 } else {
@@ -176,6 +170,25 @@ Experience: ${result.experience}\nПодробнее по ссылке: ${result
             'Добавить фильтр': async () => {
                 this.filterTumbler = true
                 await this.bot.sendMessage(chatId, 'Выберите фильтр, который нужно добавить', filterOptions)
+            },
+            'Сохранить текущий фильтр': async () => {
+                console.log('Object.keys(this.filterOptions)')
+                console.log(this)
+                console.log(Object.keys(this.queryParams))
+                console.log(Object.keys(this.queryParams).length !== 1)
+                if (Object.keys(this.queryParams).length !== 1) {
+                    const result = await vacancyService.setFilters(msg.from.id, this.queryParams)
+                    const message = result ? 'Фильтр сохранен' : 'Вы не авторизованы и не можете установить фильтры. Для авторизации введите /auth'
+                    await this.bot.sendMessage(chatId, message, filterOptions)
+                } else {
+                    this.filterTumbler = true
+                    await this.bot.sendMessage(chatId, 'Вы не ввели фильтры. Выберите фильтр, который нужно добавить', filterOptions)
+                }
+            },
+            'Удалить текущий фильтр': async () => {
+                const result = await vacancyService.deleteFilters(msg.from.id)
+                console.log(result)
+                result === 0 ? await this.bot.sendMessage(chatId, 'Не найдено сохраненных фильтров') : await this.bot.sendMessage(chatId, 'Фильтр удален')
             },
             'Город': async () => {
                 if (this.filterTumbler) {
@@ -191,7 +204,6 @@ Experience: ${result.experience}\nПодробнее по ссылке: ${result
                     this.operation = 'addFilterExperience'
                     await this.bot.sendMessage(chatId, 'Выберите опыт', experienceOptions)
                 }
-
             }
         }
         const methodsOperation = {
