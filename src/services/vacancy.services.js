@@ -87,20 +87,20 @@ class VacancyService {
       }
     })
     if (user == null || user.dataValues.authTokenHH == null) return 'Вы не авторизованы и не можете отправить отклик. Для авторизации введите /auth'
-    if (user.dataValues.resumeId === null ) return 'Не установлено резюме'
-    if (user.dataValues.coveringLetter === null ) return 'Не установлено сопроводительное письмо'
+    if (user.dataValues.resumeId === null) return 'Не установлено резюме'
+    if (user.dataValues.coveringLetter === null) return 'Не установлено сопроводительное письмо'
     console.log(user.dataValues.coveringLetter)
-      const result = await axios.post(`https://api.hh.ru/negotiations`, {}, {
-        params: {
-          vacancy_id: vacancyId,
-          resume_id: user.dataValues.resumeId,
-          message: user.dataValues.coveringLetter
-        },
-        headers: {
-          'Authorization': `Bearer ${user.dataValues.authTokenHH}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      })
+    const result = await axios.post(`https://api.hh.ru/negotiations`, {}, {
+      params: {
+        vacancy_id: vacancyId,
+        resume_id: user.dataValues.resumeId,
+        message: user.dataValues.coveringLetter
+      },
+      headers: {
+        'Authorization': `Bearer ${user.dataValues.authTokenHH}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
     console.log(result.data)
     return 'Отклик отправлен'
   }

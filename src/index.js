@@ -13,9 +13,9 @@ const {
 } = require('./models/assotiations')
 async function start() {
     await db.authenticate()
-    // await db.sync({
-    //     force: true
-    // })
+    await db.sync({
+        force: true
+    })
    
     await User.sync({
             force: true
